@@ -46,10 +46,10 @@ int main()
 
 void dataSetup(){
     unsigned int numNodes = 12;
-    const char* isLinks   = "../../data/MyNetwork_edges.txt";
-    const char* isGroups  = "../../data/MyNetwork.clusters";
+    const char* isLinks   = "../data/MyNetwork_edges.txt";
+    const char* isGroups  = "../data/MyNetwork.clusters";
     const char* test      = "MyNetwork_test.txt"; //the name of our test data file for each iteration
-    const char* outPath   = "../../output/";
+    const char* outPath   = "../output/";
 
     linkPredictionSetup( numNodes, isLinks, isGroups, outPath, test );
 }
