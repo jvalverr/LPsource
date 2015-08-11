@@ -1,8 +1,6 @@
 # LPsource
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Copyright (C) 2015 by Jorge C. Valverde-Rebaza	
-Email: jvalverr@icmc.usp.br	
-Site: http://www.labic.icmc.usp.br/jvalverr/	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+Copyright (C) 2015 by Jorge C. Valverde-Rebaza	                                                                             Email: jvalverr@icmc.usp.br	                                                                                              Site: http://www.labic.icmc.usp.br/jvalverr/	
 
 This file is part of LPsource.
 
