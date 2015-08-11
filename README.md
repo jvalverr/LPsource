@@ -1,6 +1,9 @@
 # LPsource
+####################################################################################################
 Copyright (C) 2015 by Jorge C. Valverde-Rebaza
 Email: jvalverr@icmc.usp.br
+Site: http://www.labic.icmc.usp.br/jvalverr/
+
 This file is part of LPsource.
 
 LPsource is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -8,9 +11,9 @@ as published by the Free Software Foundation, either version 3 of the License, o
 LPsource is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
 have received a copy of the GNU General Public License along with LPsource. If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
 
-
-A link prediction framework which considers the traditional topological measures from the state-of-the-art and 
+LPsource is a link prediction framework which considers the traditional topological measures from the state-of-the-art and 
 new measures based on communities and overlapping groups information.
 
 To build LPsource and prepare it for use, you must execute the Makefile file using the command 'make'. This will compile 
