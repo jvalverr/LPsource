@@ -1,0 +1,1 @@
+This directory is to save the output files created after the execution of the source binary file. Each output file contains a list of pair of nodes and for each pair of nodes a score. This information represents the links predicted by the respective link prediction method (corresponding to the file name) and their scores.
