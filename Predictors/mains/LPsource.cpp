@@ -46,12 +46,17 @@ int main()
 
 void dataSetup(){
     unsigned int numNodes = 12;
-    const char* isLinks   = "../data/MyNetwork_edges.txt";
-    const char* isGroups  = "../data/MyNetwork.clusters";
-    const char* test      = "MyNetwork_test.txt"; //the name of our test data file for each iteration
-    const char* outPath   = "../output/";
+    const char* isLinks    = "../data/MyNetwork_edges.txt";
+    const char* isGroups   = "../data/MyNetwork.groups";
+    //const char* isGroups2  = "../data/MyNetwork.clusters";
+    const char* test       = "MyNetwork_test.txt"; //the name of our test data file for each iteration
+    const char* outPath    = "../output/";
 
+    //If I have node groups formed by a nodes list
     linkPredictionSetup( numNodes, isLinks, isGroups, outPath, test );
+
+    //If I have node groups formed by links pairs
+    //linkPredictionSetup( numNodes, isLinks, isGroups2, outPath, test );
 }
 
 void linkPredictionSetup( unsigned int numNodes, const char* isLinks, const char* isGroups, const char* outPath, const char* test ){
@@ -63,7 +68,11 @@ void linkPredictionSetup( unsigned int numNodes, const char* isLinks, const char
     cout << "\n ... reading links";
     network.readLinksFile( isLinks );
     cout << "\n ... reading node groups";
+    //If I have node groups formed by a nodes list
     network.readGroupsFile( isGroups );
+    //If I have node groups formed by links pairs
+    //network.readLinkGroupsFile( isGroups );
+
     cout << "\n ... calculating network properties";
 
     network.printStatistics( cout );
