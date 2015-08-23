@@ -87,12 +87,10 @@ void Network::readGroupsFile(const char* groupsFile){
             char* pair;
             pair = strtok(str, " ");
 
-            //cout << "\n";
             bool flag = false;
             while(pair != NULL){
                 node = atoi(pair);
-                //cout << node << " ";
-
+                
                 //save the group information
                 Users[node].Groups.push_back( indexGroup );
 
