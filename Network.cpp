@@ -81,6 +81,52 @@ void Network::readGroupsFile(const char* groupsFile){
         while( !isGroups.eof() ){
             Group group;
             group.idGroup = indexGroup;
+            unsigned int node;
+            char str[tam] = "";
+            isGroups.getline(str, tam);
+            char* pair;
+            pair = strtok(str, " ");
+
+            //cout << "\n";
+            bool flag = false;
+            while(pair != NULL){
+                node = atoi(pair);
+                //cout << node << " ";
+
+                //save the group information
+                Users[node].Groups.push_back( indexGroup );
+
+                //save the place information
+                group.Users.push_back(node);
+
+                pair = strtok(NULL, " ");
+            }
+
+            //sort by user id
+            sort(group.Users.begin() , group.Users.end());
+            //remove duplicates
+            group.Users.erase( unique(group.Users.begin() , group.Users.end()), group.Users.end());
+            //insert in Groups vector
+            Groups.push_back(group);
+            //new id group
+            indexGroup++;
+        }
+    }
+
+    isGroups.close();
+    sortGroupsOfUsers();
+}
+
+void Network::readLinkGroupsFile(const char* groupsFile){
+    ifstream isGroups;
+    isGroups.open( groupsFile, ios::in );
+    index_g indexGroup = 0;
+    const unsigned int tam = MAX_GROUP_SIZE;
+
+    if(isGroups.is_open()){
+        while( !isGroups.eof() ){
+            Group group;
+            group.idGroup = indexGroup;
             unsigned int countpair = 1;
             unsigned int node1, node2;
             char str[tam] = "";
