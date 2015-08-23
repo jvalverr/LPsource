@@ -55,8 +55,9 @@ class Network {
         Network& operator=( const Network& );
 
         //reads
-        void readLinksFile   ( const char* );
-        void readGroupsFile  ( const char* );
+        void readLinksFile      ( const char* );
+        void readGroupsFile     ( const char* );
+        void readLinkGroupsFile ( const char* );
 
         //prints
         void printLinksList ( ostream& );
