@@ -87,7 +87,6 @@ void Network::readGroupsFile(const char* groupsFile){
             char* pair;
             pair = strtok(str, " ");
 
-            bool flag = false;
             while(pair != NULL){
                 node = atoi(pair);
                 
