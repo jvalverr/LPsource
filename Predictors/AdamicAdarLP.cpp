@@ -6,7 +6,7 @@ This file is part of LPsource.
 
 The code to calculate this link prediction measure is based on the paper [3].
 
-[3] Linyuan Lüa and Tao Zhoua. "Link prediction in complex networks: A survey". Physica A: Statistical Mechanics and its
+[3] Linyuan Lü and Tao Zhou. "Link prediction in complex networks: A survey". Physica A: Statistical Mechanics and its
     Applications, 390 (6), pp. 1150 - 1170, 2011.
 
 LPsource is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
