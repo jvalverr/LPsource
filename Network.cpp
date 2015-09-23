@@ -29,13 +29,8 @@ have received a copy of the GNU General Public License along with LPsource. If n
 
 
 
-Network::Network(unsigned int numUsers): numEdges(0), numNodes(numUsers), maxNumFriendsPerUser(INV_LONG) {
-    for(index_v i = 0; i < numUsers; i++){
-        Node user;
-        user.Groups.reserve(1);
 
-        this->Users.push_back(user);
-    }
+Network::Network(): numEdges(0), numNodes(0), maxNumFriendsPerUser(INV_LONG), isWeighted(false) {
 }
 
 Network::~Network() {
@@ -45,8 +40,21 @@ Network::~Network() {
 Network& Network::operator=( const Network& network ) {
 	this->numEdges              = network.numEdges;
     this->numNodes              = network.numNodes;
+    this->isWeighted            = network.isWeighted;
 
     return *this;
+}
+
+bool Network::isNetworkWeighted()const{
+    return  this->isWeighted;
+}
+
+double Network::getSampleCorrelationCoefficient(vector<vector<double> >& x, vector<vector<double> >& y)const{
+    return sampleCorrelationCoefficient(x, y);
+}
+
+double Network::getSampleCorrelationCoefficient(vector<double>& x, vector<double>& y)const{
+    return sampleCorrelationCoefficient(x, y);
 }
 
 
@@ -58,16 +66,75 @@ Network& Network::operator=( const Network& network ) {
 void Network::readLinksFile( const char* linksFile ){
     ifstream isLinks;
     isLinks.open( linksFile, ios::in );
+    unsigned int maxNodes = 0;
 
      if(isLinks.is_open()){
         while(!isLinks.eof()){
             unsigned int idUser1, idUser2;
             isLinks >> idUser1 >> idUser2;
+
+            //calculate the new max value of number of nodes
+            if( idUser1 > maxNodes )
+                maxNodes = idUser1;
+            if( idUser2 > maxNodes )
+                maxNodes = idUser2;
+
+            //create new instances for the new users
+            if(Users.size() < (maxNodes + 1)){
+                for(index_v i = Users.size(); i < (maxNodes + 1); i++){
+                    Node user;
+                    user.Groups.reserve(1);
+                    this->Users.push_back(user);
+                }
+            }
+
+            //instance the new relationship
             this->Users[idUser1].Neighbors.push_back(idUser2);
             this->numEdges++;
         }
      }
+
+     numNodes = maxNodes + 1;
      isLinks.close();
+     sortNeighborsOfUsers();
+}
+
+void Network::readWeightedLinksFile ( const char* weightedLinksFile ){
+    ifstream isLinks;
+    isLinks.open( weightedLinksFile, ios::in );
+    unsigned int maxNodes = 0;
+
+     if(isLinks.is_open()){
+        while(!isLinks.eof()){
+            unsigned int idUser1, idUser2;
+            double weight;
+            isLinks >> idUser1 >> idUser2 >> weight;
+
+            //calculate the new max value of number of nodes
+            if( idUser1 > maxNodes )
+                maxNodes = idUser1;
+            if( idUser2 > maxNodes )
+                maxNodes = idUser2;
+
+            //create new instances for the new users
+            if(Users.size() < (maxNodes + 1)){
+                for(index_v i = Users.size(); i < (maxNodes + 1); i++){
+                    Node user;
+                    user.Groups.reserve(1);
+                    this->Users.push_back(user);
+                }
+            }
+
+            //instance the new relationship
+            this->Users[idUser1].Neighbors.push_back(idUser2);
+            this->Users[idUser1].Weights.push_back(weight);
+            this->numEdges++;
+        }
+     }
+
+     isLinks.close();
+     numNodes = maxNodes + 1;
+     isWeighted = true;
      sortNeighborsOfUsers();
 }
 
@@ -89,7 +156,8 @@ void Network::readGroupsFile(const char* groupsFile){
 
             while(pair != NULL){
                 node = atoi(pair);
-                
+                //cout << node << " ";
+
                 //save the group information
                 Users[node].Groups.push_back( indexGroup );
 
@@ -196,6 +264,12 @@ void Network::printLinksTest( ostream& os){
     }
 }
 
+void Network::printWeightedLinksTest ( ostream& os ){
+     for(index_v i = 0; i < TestLinks.size(); i++){
+        os << TestLinks[i].indexVertex1 << " " << TestLinks[i].indexVertex2 << " " << TestLinks[i].score << "\n";
+    }
+}
+
 
 void Network::printGroups ( ostream& os ){
     os << "*Groups " << Groups.size() << "\n";
@@ -286,16 +360,27 @@ void Network::edgeRandomSubSampling( double percentEdgesToTrain ){
 }
 
 
+void Network::setTestLinksList( vector<Link> linksList ){
+    TestLinks.swap(linksList);
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     SORT                 ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Network::sortNeighborsOfUsers(){
-   for(index_v i = 0; i < Users.size(); i++){
+   if(isWeighted == false){ //we will sort just the neighbors
+     for(index_v i = 0; i < Users.size(); i++)
         sort(Users[i].Neighbors.begin(), Users[i].Neighbors.end());
    }
+   else{ //if is weighted, we will sort neighbors and their weights, it is more slow
+        for(index_v i = 0; i < Users.size(); i++)
+            sortWeightedLinks(0, Users[i].Neighbors.size(), Users[i].Neighbors, Users[i].Weights);
+   }
 }
+
 
 
 void Network::sortGroupsOfUsers(){
@@ -316,6 +401,20 @@ void Network::sortLinkListTest(){
         }
     }
     sort(TestLinks.begin() + indAct, TestLinks.end(), linkCompareByNode2() );
+}
+
+vector<Link> Network::getTrainLinks() const{
+    vector<Link> trainLinks;
+    for(index_v i = 0; i < this->Users.size(); ++i ) {
+          for(index_v j = 0; j < Users[i].Neighbors.size(); ++j) {
+                Link link;
+                link.indexVertex1 = i;
+                link.indexVertex2 = this->Users[i].Neighbors[j];
+                link.score = this->Users[i].Weights[j];
+                trainLinks.push_back(link);
+          }
+    }
+    return trainLinks;
 }
 
 
@@ -342,9 +441,45 @@ bool Network::hasEdge( index_v indexVertex1, index_v indexVertex2 ) const{
     return false;
 }
 
+double Network::getWeight(index_v indexVertex1, index_v indexVertex2 ) const{
+    if(isWeighted == false)
+        return 1;
+
+    long first = 0, last = Users[indexVertex1].Neighbors.size() - 1, middle = (first+last)/2;
+
+    while (first <= last) {
+         if (Users[indexVertex1].Neighbors[middle] < indexVertex2)
+            first = middle + 1;
+         else if (Users[indexVertex1].Neighbors[middle] == indexVertex2) {
+             return Users[indexVertex1].Weights[middle];
+         }
+         else
+            last = middle - 1;
+
+
+        middle = (first + last)/2;
+    }
+    return 0.0;
+}
+
+double Network::getStrengthOfNode( index_v indexVertex ) const{
+    double strength = 0.0;
+
+    if(isWeighted == true){
+        for(unsigned int i = 0; i < Users[indexVertex].Neighbors.size(); i++)
+            strength += Users[indexVertex].Weights[i];
+    }
+    else{
+        for(unsigned int i = 0; i < Users[indexVertex].Neighbors.size(); i++)
+            strength++;
+    }
+
+    return strength;
+}
+
 
 unsigned int Network::getNumUsers() const{
-    return Users.size();
+    return this->numNodes;
 }
 
 unsigned int Network::getDegree( index_v indexVertex ) const{
@@ -680,3 +815,4 @@ vector<index_v> Network::getOverlappingGroupsNeighbors(index_v vertex) const{
 vector<index_g> Network::getGroups( index_v indexVertex )const{
     return Users[indexVertex].Groups;
 }
+
