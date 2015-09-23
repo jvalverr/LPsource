@@ -24,6 +24,19 @@ have received a copy of the GNU General Public License along with LPsource. If n
 #include "../ResourceAllocationLP.h"
 #include "../PreferentialAttachmentLP.h"
 
+
+//weighted traditional measures
+#include "../WeightedCommonNeighborsLP.h"
+#include "../WeightedAdamicAdarLP.h"
+#include "../WeightedJaccardLP.h"
+#include "../WeightedPreferentialAttachmentLP.h"
+#include "../WeightedResourceAllocationLP.h"
+
+//global traditional measures
+#include "../KatzLP.h"
+#include "../SimRankLP.h"
+#include "../RootedPageRankLP.h"
+
 //overlapping group measures (proposals)
 #include "../WithinAndOutsideCommonGroupsLP.h"
 #include "../CommonNeighborsOfGroupsLP.h"
@@ -34,7 +47,7 @@ have received a copy of the GNU General Public License along with LPsource. If n
 using namespace std;
 
 void dataSetup();
-void linkPredictionSetup( unsigned int, const char*, const char*, const char*, const char* );
+void linkPredictionSetup( const char*, const char*, const char*, const char* );
 void runLinkPredictionMethods(const Network& , const char* );
 void linkPredictionProcess(const char*, const Network&, const char*);
 
@@ -45,33 +58,29 @@ int main()
 }
 
 void dataSetup(){
-    unsigned int numNodes = 12;
     const char* isLinks    = "../data/MyNetwork_edges.txt";
     const char* isGroups   = "../data/MyNetwork.groups";
-    //const char* isGroups2  = "../data/MyNetwork.clusters";
     const char* test       = "MyNetwork_test.txt"; //the name of our test data file for each iteration
     const char* outPath    = "../output/";
 
     //If I have node groups formed by a nodes list
-    linkPredictionSetup( numNodes, isLinks, isGroups, outPath, test );
+    linkPredictionSetup( isLinks, isGroups, outPath, test );
 
     //If I have node groups formed by links pairs
     //linkPredictionSetup( numNodes, isLinks, isGroups2, outPath, test );
 }
 
-void linkPredictionSetup( unsigned int numNodes, const char* isLinks, const char* isGroups, const char* outPath, const char* test ){
+void linkPredictionSetup( const char* isLinks, const char* isGroups, const char* outPath, const char* test ){
     Timer timer = Timer();
     timer.start();
 
     cout << "\n Start the process";
-    Network network = Network(numNodes);
+    Network network = Network();
     cout << "\n ... reading links";
     network.readLinksFile( isLinks );
     cout << "\n ... reading node groups";
     //If I have node groups formed by a nodes list
-    network.readGroupsFile( isGroups );
-    //If I have node groups formed by links pairs
-    //network.readLinkGroupsFile( isGroups );
+    network.readGroupsFile( isGroups ); //If you have node groups formed by links pairs use: network.readLinkGroupsFile( isGroups );
 
     cout << "\n ... calculating network properties";
 
@@ -103,17 +112,25 @@ void linkPredictionSetup( unsigned int numNodes, const char* isLinks, const char
 void runLinkPredictionMethods(const Network& network, const char* prefix ){
     vector<string> listMethods;
 
-    //metodos tradicionais
     listMethods.push_back( "AdamicAdar" );
     listMethods.push_back( "CommonNeighbors" );
     listMethods.push_back( "Jaccard" );
     listMethods.push_back( "PreferentialAttachment" );
     listMethods.push_back( "ResourceAllocation" );
 
-    //metodos baseados em informações de grupos (overlapping groups)
     listMethods.push_back( "CommonNeighborsOfGroups" );
     listMethods.push_back( "TotalAndPartialOverlappingOfGroups" );
     listMethods.push_back( "WithinAndOutsideCommonGroups" );
+
+    listMethods.push_back( "Katz" );
+    listMethods.push_back( "SimRank" );
+    listMethods.push_back( "RootedPageRank" );
+
+    listMethods.push_back( "WeightedCommonNeighbors" );
+    listMethods.push_back( "WeightedAdamicAdar" );
+    listMethods.push_back( "WeightedJaccard" );
+    listMethods.push_back( "WeightedResourceAllocation" );
+    listMethods.push_back( "WeightedPreferentialAttachment" );
 
     for(unsigned int i = 0; i < listMethods.size(); i++){
         Timer timer = Timer();
@@ -126,9 +143,12 @@ void runLinkPredictionMethods(const Network& network, const char* prefix ){
 
 
 void linkPredictionProcess(const char* predictorName, const Network& network, const char* prefix ){
-    unsigned int degree = 2;
-    bool predictorExist = true;
-    LinkPredictor* predictor = NULL;
+     int lengthPath = 5;
+     double beta = 0.05;
+     double alpha = 0.15;
+     double C = 0.8;
+     bool predictorExist = true;
+     LinkPredictor* predictor = NULL;
 
      if( strcmp( predictorName, "CommonNeighbors" ) == 0 ) {
         predictor = new CommonNeighborsLP( network );
@@ -154,7 +174,31 @@ void linkPredictionProcess(const char* predictorName, const Network& network, co
      else if( strcmp( predictorName, "WithinAndOutsideCommonGroups" ) == 0 ) {
         predictor = new WithinAndOutsideCommonGroupsLP( network );
      }
-     else {
+     else if( strcmp( predictorName, "WeightedCommonNeighbors" ) == 0 ) {
+        predictor = new WeightedCommonNeighborsLP( network );
+    }
+    else if( strcmp( predictorName, "WeightedAdamicAdar" ) == 0 ) {
+        predictor = new WeightedAdamicAdarLP( network );
+    }
+    else if( strcmp( predictorName, "WeightedJaccard" ) == 0 ) {
+        predictor = new WeightedJaccardLP( network );
+    }
+    else if( strcmp( predictorName, "WeightedResourceAllocation" ) == 0 ) {
+        predictor = new WeightedResourceAllocationLP( network );
+	}
+	else if( strcmp( predictorName, "WeightedPreferentialAttachment" ) == 0 ) {
+	    predictor = new WeightedPreferentialAttachmentLP( network );
+	}
+	else if( strcmp( predictorName, "Katz" ) == 0 ) {
+        predictor = new KatzLP( network , lengthPath, beta );
+    }
+    else if( strcmp( predictorName, "SimRank" ) == 0 ) {
+        predictor = new SimRankLP( network, C );
+	}
+	else if( strcmp( predictorName, "RootedPageRank" ) == 0 ) {
+	    predictor = new RootedPageRankLP( network, alpha );
+	}
+    else{
         cout<<"\n... The predictor " << predictorName << " does not exist";
         predictorExist = false;
     }
@@ -169,6 +213,7 @@ void linkPredictionProcess(const char* predictorName, const Network& network, co
         cout<<"  ... link prediction method: " << predictorName<<" ";
 
         fileScoresOut.open( predictFileAval );
+        unsigned int degree = 2;
         predictor->printScores( fileScoresOut , degree );
         fileScoresOut.close();
     }
