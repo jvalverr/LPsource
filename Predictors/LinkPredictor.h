@@ -20,12 +20,15 @@ have received a copy of the GNU General Public License along with LPsource. If n
 
 
 #include "../Network.h"
+//#include "../Utils.h"
 
 using namespace std;
 
 class LinkPredictor {
     protected:
 		const Network& network;
+		index_v vertex;
+		index_v neighbor;
         LinkPredictor();
 
     public:
@@ -33,6 +36,7 @@ class LinkPredictor {
         virtual ~LinkPredictor();
         virtual double generateScore( index_v, index_v ) = 0;
         void printScores( ostream& , unsigned int );
+        vector<Link> getListScores( unsigned int );
 
 };
 
