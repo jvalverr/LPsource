@@ -17,6 +17,7 @@ have received a copy of the GNU General Public License along with LPsource. If n
 
 #include <vector>
 
+
 using std::vector;
 using std::pair;
 
@@ -34,6 +35,7 @@ const unsigned int MAX_GROUP_SIZE    = 8000000;
 /********************************************************/
 struct Node{
     vector<index_v>  Neighbors;   //list of indexes of neighborhood of the node
+    vector<double>   Weights;     //list of weights of relationships between the node and their neighbors
     vector<index_g>  Groups;      //list of labels of groups to which the node belong to
 };
 
