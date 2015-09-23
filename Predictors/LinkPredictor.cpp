@@ -15,7 +15,7 @@ have received a copy of the GNU General Public License along with LPsource. If n
 
 #include "LinkPredictor.h"
 
-LinkPredictor::LinkPredictor( const Network& network ) : network(network) {
+LinkPredictor::LinkPredictor( const Network& network ) : network(network), vertex(INF_P), neighbor(INF_P)  {
 }
 
 LinkPredictor::~LinkPredictor() {
@@ -41,7 +41,32 @@ void LinkPredictor::printScores( ostream& os, unsigned int degree){
             }
         }
     }
-
 }
 
 
+vector<Link> LinkPredictor::getListScores( unsigned int degree ){
+    vector<Link> listLinks;
+    if(degree <= 1){
+        cerr << "For degree = " <<  degree << " we assume that the degree is 2";
+        degree = 2;
+    }
+
+
+    for(index_v indexVertex = 0; indexVertex < network.getNumUsers(); indexVertex++){
+        vector<index_v> verticesToAnalize = network.getNeighbors( indexVertex, degree );
+
+        for(unsigned int j = 0; j < verticesToAnalize.size(); j++ ){
+            index_v indexNeighbor = verticesToAnalize[j];
+            double predictValue = this->generateScore(indexVertex, indexNeighbor);
+
+            if( predictValue != 0.0 ){
+                Link link;
+                link.indexVertex1 = indexVertex;
+                link.indexVertex2 = indexNeighbor;
+                link.score        = predictValue;
+                listLinks.push_back(link);
+            }
+        }
+    }
+    return listLinks;
+}
