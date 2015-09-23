@@ -24,7 +24,7 @@ have received a copy of the GNU General Public License along with LPsource. If n
 #include <time.h>
 #include <cstdlib>
 #include <stdio.h>
-
+#include <limits>
 
 #include "Structures.h"
 
@@ -36,42 +36,53 @@ class Network {
         unsigned int numNodes;
         unsigned int maxPathLength;
         long          maxNumFriendsPerUser;
+        bool         isWeighted;
 
         vector<Node>  Users;       //list of all users
-        vector<Group> Groups;     //list of user groups
+        vector<Group> Groups;      //list of user groups
         vector<Link>  TestLinks;   //list of all test links
 
 
         //methods
         void sortNeighborsOfUsers();
         void sortGroupsOfUsers();
-        void sortLinkListTest();
+
 
 
     public:
-
-        Network(unsigned int numUsers);
+        Network();
        ~Network();
         Network& operator=( const Network& );
+        double getSampleCorrelationCoefficient(vector<vector<double> >&, vector<vector<double> >&) const;
+        double getSampleCorrelationCoefficient(vector<double>&, vector<double>&) const;
+
 
         //reads
-        void readLinksFile      ( const char* );
-        void readGroupsFile     ( const char* );
-        void readLinkGroupsFile ( const char* );
+        void readLinksFile        ( const char* );
+        void readGroupsFile       ( const char* );
+        void readLinkGroupsFile   ( const char* );
+        void readWeightedLinksFile ( const char* );
+
 
         //prints
         void printLinksList ( ostream& );
         void printLinksTest ( ostream& );
+        void printWeightedLinksTest ( ostream& );
         void printGroups    ( ostream& );
         void printStatistics( ostream& );
 
 
         //sample
         void edgeRandomSubSampling( double );
+        void setTestLinksList(vector<Link>);
+        void sortLinkListTest();
 
 
         //structural properties
         bool          hasEdge( index_v, index_v )                           const;
+        bool          isNetworkWeighted()                                   const;
+        double        getWeight( index_v, index_v)                          const;
+        double        getStrengthOfNode( index_v )                          const;
         unsigned int  getNumUsers()                                         const;
         unsigned int  getDegree( index_v )                                  const;
         unsigned int  getDiameter();
@@ -91,6 +102,7 @@ class Network {
         vector<index_v>     intersect(vector<index_v>, vector<index_v>)    const;
         vector<long>        intersect(vector<long>, vector<long>)          const;
         vector<index_v>     junction (vector<index_v>, vector<index_v>)    const;
+        vector<Link>        getTrainLinks()                                const;
 
 
         //group properties
