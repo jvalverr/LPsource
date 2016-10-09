@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------
-Copyright (C) 2015 by Jorge C. Valverde-Rebaza
+Copyright (C) 2015-2016 by Jorge C. Valverde-Rebaza
 Email: jvalverr@icmc.usp.br
 
 This file is part of LPsource.
