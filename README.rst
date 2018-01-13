@@ -1,6 +1,6 @@
 LPsource
 ============
-Copyright (C) 2015-2017 by `Jorge C. Valverde-Rebaza`_
+Copyright (C) 2015-2018 by `Jorge C. Valverde-Rebaza`_
 
 .. _Jorge C. Valverde-Rebaza: http://www.labic.icmc.usp.br/jvalverr/
 
